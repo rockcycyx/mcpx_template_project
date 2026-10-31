@@ -1,0 +1,153 @@
+<Page x:Class="mcpx_template_project.Views.Pages.Business.Dashboard.PageDashboard"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+        mc:Ignorable="d"
+        Title="生产看板"
+        Background="{DynamicResource App.PageBackground}"
+        FontSize="13">
+
+    <Page.Resources>
+        <!-- KPI 指标卡 -->
+        <Style x:Key="KpiCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource App.CardBackground}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="18,14"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+        </Style>
+
+        <Style x:Key="KpiLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource App.TextSecondary}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+
+        <Style x:Key="KpiValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource UiBrush.Text}"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <!-- 图表容器 -->
+        <Style x:Key="ChartCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource App.CardBackground}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="Margin" Value="0,0,12,12"/>
+        </Style>
+
+        <Style x:Key="ChartTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource App.TextSecondary}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题 -->
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="生产看板" FontSize="18" FontWeight="SemiBold"
+                           Foreground="{DynamicResource UiBrush.Text}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding StatusText}" FontSize="12" Margin="14,3,0,0"
+                           Foreground="{DynamicResource App.TextSecondary}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- KPI 指标卡 -->
+        <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,12,12">
+            <Border Style="{StaticResource KpiCard}">
+                <StackPanel>
+                    <TextBlock Text="今日产量" Style="{StaticResource KpiLabel}"/>
+                    <TextBlock Text="{Binding TodayProduction}" Style="{StaticResource KpiValue}"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource KpiCard}">
+                <StackPanel>
+                    <TextBlock Text="总产量" Style="{StaticResource KpiLabel}"/>
+                    <TextBlock Text="{Binding TotalProduction}" Style="{StaticResource KpiValue}"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource KpiCard}">
+                <StackPanel>
+                    <TextBlock Text="运转机台 / 总机台" Style="{StaticResource KpiLabel}"/>
+                    <TextBlock Text="{Binding RunningCount}" Style="{StaticResource KpiValue}"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource KpiCard}">
+                <StackPanel>
+                    <TextBlock Text="平均有效功率" Style="{StaticResource KpiLabel}"/>
+                    <TextBlock Text="{Binding AvgEffectivePower}" Style="{StaticResource KpiValue}"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- 图表区 -->
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 近 7 日产量趋势（示例数据） -->
+            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource ChartCard}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="近 7 日产量趋势（示例数据）" Style="{StaticResource ChartTitle}"/>
+                    <lvc:CartesianChart Grid.Row="1"
+                                        Series="{Binding TrendSeries}"
+                                        XAxes="{Binding TrendXAxes}"
+                                        YAxes="{Binding TrendYAxes}"
+                                        LegendPosition="Top"/>
+                </Grid>
+            </Border>
+
+            <!-- 机台实时状态分布（真实数据） -->
+            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource ChartCard}" Margin="0,0,0,12">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="机台实时状态分布" Style="{StaticResource ChartTitle}"/>
+                    <lvc:PieChart Grid.Row="1"
+                                  Series="{Binding StatePieSeries}"
+                                  LegendPosition="Bottom"
+                                  InitialRotation="-90"/>
+                </Grid>
+            </Border>
+
+            <!-- 各机台今日产量（真实数据） -->
+            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource ChartCard}" Margin="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="150"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="各机台今日产量" Style="{StaticResource ChartTitle}"/>
+                    <lvc:CartesianChart Grid.Row="1"
+                                        Series="{Binding MachineProductionSeries}"
+                                        XAxes="{Binding MachineXAxes}"
+                                        YAxes="{Binding MachineYAxes}"
+                                        LegendPosition="Hidden"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

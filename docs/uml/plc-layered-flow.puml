@@ -1,0 +1,36 @@
+@startuml plc-layered-flow
+' 注解 → 读写链路 · 分层数据流图（v3.0）
+' 在 PlantUML 在线编辑器 (https://www.plantuml.com/plantuml) 或本地 plantuml.jar 中渲染
+
+skinparam shadowing false
+skinparam componentStyle rectangle
+
+title 注解 → 读写链路 · 分层数据流
+
+component "1 · 业务实体层" as L1 {
+  [Recipe 等实体\n[PlcRead] + [PlcWrite] 注解]
+  [[PlcRead(PlcDevice.D, "2034")] [PlcWrite(PlcDevice.D, "3700")]\npublic int UpperLamiTmp_Stage1;]
+}
+
+component "2 · 注解扫描层（反射 + 缓存）" as L2 {
+  [PlcPointAttributeScanner.Scan<T>()\n→ PlcObjectPlan]
+  [自动分类：Reads / WriteValues\nTrigger(Role=Trigger) / Reply(Role=Reply)\nConcurrentDictionary 按 Type 缓存]
+}
+
+component "3 · 通用门面层（零样板）" as L3 {
+  [PlcObjectService\nWriteAsync（三态握手）/ Read（返回字典）]
+  [PlcPointAccessor<T>\n表达式树编译 getter，零反射取值]
+  [PlcHelper\nIsOn / ParseReply / ReadCachedValue]
+}
+
+component "4 · 通讯引擎层（按段批量）" as L4 {
+  [IPlcCommunicationService\nWriteSinglePointAsync / GetCachedPoints]
+  [PointValueVO（段）+ Values[]（子值，地址十六进制递增）]
+}
+
+L1 --> L2 : 扫描注解
+L2 --> L3 : 生成计划
+L3 --> L4 : 读写点位
+L4 --> L3 : 返回缓存值
+
+@enduml

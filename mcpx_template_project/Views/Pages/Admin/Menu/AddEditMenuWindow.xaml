@@ -1,0 +1,164 @@
+<Window x:Class="mcpx_template_project.Views.Pages.Admin.Menu.AddEditMenuWindow"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:local="clr-namespace:mcpx_template_project.Views.Pages.Admin.Menu"
+      xmlns:vm="clr-namespace:mcpx_template_project.ViewModels.Admin.Menu"
+      xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+      mc:Ignorable="d"
+      Height="550" Width="680"
+      WindowStartupLocation="CenterOwner"
+      ResizeMode="NoResize"
+      Background="{DynamicResource App.PageBackground}">
+    <Window.Style>
+        <Style TargetType="Window">
+            <Setter Property="Title">
+                <Setter.Value>
+                    <Binding Path="IsEditMode">
+                        <Binding.Converter>
+                            <local:BoolToTitleConverter/>
+                        </Binding.Converter>
+                    </Binding>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Style>
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 上级菜单 -->
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="上级菜单" VerticalAlignment="Center" Margin="0,0,10,15"/>
+        <Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0"
+                     IsReadOnly="True"
+                     Text="{Binding SelectedParentMenuName, Mode=OneWay}"
+                     ToolTip="点击右侧按钮选择上级菜单"/>
+            <Button Grid.Column="1"
+                    Content="选择"
+                    Width="60"
+                    Margin="5,0,5,0"
+                    Click="SelectParentMenu_Click"/>
+            <Button Grid.Column="2"
+                    Content="清除"
+                    Width="50"
+                    Margin="0,0,0,0"
+                    Click="ClearParentMenu_Click"/>
+        </Grid>
+
+        <!-- 菜单类型 -->
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="菜单类型" VerticalAlignment="Center" Margin="0,0,10,15"/>
+        <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,15"
+                  SelectedValuePath="Tag"
+                  SelectedValue="{Binding MenuType, Mode=TwoWay}">
+            <ComboBoxItem Content="目录" Tag="M"/>
+            <ComboBoxItem Content="菜单" Tag="C"/>
+            <ComboBoxItem Content="按钮" Tag="F"/>
+        </ComboBox>
+
+        <!-- 菜单名称 -->
+        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,15">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="*" Foreground="{DynamicResource App.Danger}"/>
+                <TextBlock Text="菜单名称"/>
+            </StackPanel>
+        </TextBlock>
+        <TextBox Grid.Row="2" Grid.Column="1" Margin="0,0,0,15"
+                 Text="{Binding MenuName, UpdateSourceTrigger=PropertyChanged}"
+                 ToolTip="请输入菜单名称"/>
+
+        <!-- 显示排序 -->
+        <TextBlock Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" Margin="20,0,10,15">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="*" Foreground="{DynamicResource App.Danger}"/>
+                <TextBlock Text="显示排序"/>
+            </StackPanel>
+        </TextBlock>
+        <TextBox Grid.Row="2" Grid.Column="3" Margin="20,0,0,15"
+                 Text="{Binding OrderNum, UpdateSourceTrigger=PropertyChanged}"
+                 ToolTip="请输入显示排序"/>
+
+        <!-- 组件路径（仅菜单类型） -->
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="组件路径" VerticalAlignment="Center" Margin="0,0,10,15"
+                   Visibility="{Binding IsComponentVisibility}"/>
+        <TextBox Grid.Row="3" Grid.Column="1" Margin="0,0,0,15"
+                 Text="{Binding Component, UpdateSourceTrigger=PropertyChanged}"
+                 ToolTip="请输入组件路径"
+                 Visibility="{Binding IsComponentVisibility}"/>
+
+        <!-- 权限字符（菜单和按钮类型） -->
+        <TextBlock Grid.Row="3" Grid.Column="2" Text="权限字符" VerticalAlignment="Center" Margin="20,0,10,15"
+                   Visibility="{Binding IsPermsVisibility}"/>
+        <TextBox Grid.Row="3" Grid.Column="3" Margin="20,0,0,15"
+                 Text="{Binding Perms, UpdateSourceTrigger=PropertyChanged}"
+                 ToolTip="请输入权限字符"
+                 Visibility="{Binding IsPermsVisibility}"/>
+
+        <!-- 显示状态（目录和菜单类型） -->
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="显示状态" VerticalAlignment="Center" Margin="0,0,10,15"
+                   Visibility="{Binding IsVisibleVisibility}"/>
+        <ComboBox Grid.Row="4" Grid.Column="1" Margin="0,0,0,15"
+                  SelectedValuePath="Tag"
+                  SelectedValue="{Binding Visible, Mode=TwoWay}"
+                  Visibility="{Binding IsVisibleVisibility}">
+            <ComboBoxItem Content="显示" Tag="0"/>
+            <ComboBoxItem Content="隐藏" Tag="1"/>
+        </ComboBox>
+
+        <!-- 菜单状态 -->
+        <TextBlock Grid.Row="4" Grid.Column="2" Text="菜单状态" VerticalAlignment="Center" Margin="20,0,10,15"/>
+        <ui:ToggleSwitch Grid.Row="4" Grid.Column="3" Margin="20,0,0,15"
+                         IsOn="{Binding IsStatusActive, Mode=TwoWay}"/>
+
+        <!-- 菜单图标 -->
+        <TextBlock Grid.Row="5" Grid.Column="0" Text="菜单图标" VerticalAlignment="Center" Margin="0,0,10,15"/>
+        <Grid Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0"
+                     Text="{Binding Icon, UpdateSourceTrigger=PropertyChanged}"
+                     ToolTip="填写 Segoe Fluent Icons 官方图标名（如 Home/Setting/Contact），或 4 位十六进制字形码（如 E80F），留空则按菜单名称自动推断"/>
+            <TextBlock Grid.Column="1" Text="如 Home / Setting / E80F" Foreground="{DynamicResource App.TextTertiary}" FontSize="12" VerticalAlignment="Center" Margin="10,0,0,0"/>
+        </Grid>
+
+        <!-- 备注 -->
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="备注" VerticalAlignment="Center" Margin="0,0,10,0"/>
+        <TextBox Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,0"
+                 Text="{Binding Remark, UpdateSourceTrigger=PropertyChanged}"
+                 ToolTip="请输入备注"
+                 AcceptsReturn="True"
+                 Height="50"
+                 TextWrapping="Wrap"/>
+
+        <!-- 按钮区域 -->
+        <StackPanel Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource App.Danger}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <Button Content="确定" Width="80" Margin="0,0,10,0"
+                       Click="ConfirmBtn_Click"/>
+            <Button Content="取消" Width="80" Margin="0,0,0,0"
+                       Click="CancelBtn_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

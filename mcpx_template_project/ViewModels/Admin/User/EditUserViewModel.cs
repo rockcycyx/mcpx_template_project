@@ -1,0 +1,304 @@
+using System.Collections.ObjectModel;
+using System.Linq;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using mcpx_template_project.Domain.Entities.System;
+using mcpx_template_project.Domain.VO;
+using mcpx_template_project.Service.Admin;
+
+
+
+namespace mcpx_template_project.ViewModels.Admin.User
+{
+    public partial class EditUserViewModel : ObservableObject
+    {
+        private readonly IUserService _userService;
+        private readonly IDialogService _dialogService;
+
+        public long UserId { get; }
+
+        public string UserName { get; } = string.Empty;
+
+        [ObservableProperty]
+        private string _nickName = string.Empty;
+
+        [ObservableProperty]
+        private string _phoneNumber = string.Empty;
+
+        [ObservableProperty]
+        private string _email = string.Empty;
+
+        [ObservableProperty]
+        private long? _deptId;
+
+        [ObservableProperty]
+        private string _sex = string.Empty;
+
+        [ObservableProperty]
+        private string _status = "0";
+
+        [ObservableProperty]
+        private long? _postId;
+
+        [ObservableProperty]
+        private string _remark = string.Empty;
+
+        public ObservableCollection<SysDeptVO> DeptTree { get; } = new();
+
+        public ObservableCollection<SysPostVO> PostList { get; } = new();
+
+        public ObservableCollection<SysRoleVO> RoleList { get; } = new();
+
+        public List<SexOption> SexOptions { get; } = new()
+        {
+            new SexOption("男", "0"),
+            new SexOption("女", "1"),
+            new SexOption("未知", "2")
+        };
+
+        [ObservableProperty]
+        private string _errorMessage = string.Empty;
+
+        [ObservableProperty]
+        private bool _isStatusActive = true;
+
+        partial void OnIsStatusActiveChanged(bool value) => Status = value ? "0" : "1";
+
+        [ObservableProperty]
+        private bool _isRolePopupOpen;
+
+        [ObservableProperty]
+        private string _selectedRolesDisplay = "请选择角色";
+
+        [ObservableProperty]
+        private bool _isDeptPopupOpen;
+
+        [ObservableProperty]
+        private string _selectedDeptName = "请选择部门";
+
+        [ObservableProperty]
+        private bool _isPostPopupOpen;
+
+        [ObservableProperty]
+        private string _selectedPostsDisplay = "请选择岗位";
+
+        public event Action<bool>? RequestClose;
+
+        public EditUserViewModel(SysUserVO user, IUserService userService, IDialogService dialogService)
+        {
+            _userService = userService;
+            _dialogService = dialogService;
+            UserId = user.UserId;
+            UserName = user.UserName ?? string.Empty;
+            NickName = user.NickName ?? string.Empty;
+            PhoneNumber = user.PhoneNumber ?? string.Empty;
+            Email = user.Email ?? string.Empty;
+            DeptId = user.DeptId;
+            Sex = user.Sex ?? string.Empty;
+            Status = user.Status ?? "0";
+            Remark = user.Remark ?? string.Empty;
+
+            IsStatusActive = user.Status != "1";
+        }
+
+        [RelayCommand]
+        private void Confirm()
+        {
+            ErrorMessage = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(NickName))
+            {
+                ErrorMessage = "用户昵称不能为空";
+                return;
+            }
+
+            RequestClose?.Invoke(true);
+        }
+
+        [RelayCommand]
+        private void Cancel()
+        {
+            RequestClose?.Invoke(false);
+        }
+
+        [RelayCommand]
+        private void ToggleRolePopup()
+        {
+            IsRolePopupOpen = !IsRolePopupOpen;
+        }
+
+        [RelayCommand]
+        private void CloseRolePopup()
+        {
+            IsRolePopupOpen = false;
+        }
+
+        [RelayCommand]
+        private void ToggleDeptPopup()
+        {
+            IsDeptPopupOpen = !IsDeptPopupOpen;
+        }
+
+        [RelayCommand]
+        private void SelectDept(SysDeptVO? dept)
+        {
+            if (dept != null)
+            {
+                DeptId = dept.DeptId;
+                SelectedDeptName = dept.DeptName;
+            }
+            IsDeptPopupOpen = false;
+        }
+
+        [RelayCommand]
+        private void ClearDept()
+        {
+            DeptId = null;
+            SelectedDeptName = "请选择部门";
+            IsDeptPopupOpen = false;
+        }
+
+        [RelayCommand]
+        private void TogglePostPopup()
+        {
+            IsPostPopupOpen = !IsPostPopupOpen;
+        }
+
+        [RelayCommand]
+        private void SelectAllPosts()
+        {
+            bool selectAll = PostList.Any(p => !p.IsSelected);
+            foreach (var post in PostList)
+            {
+                post.IsSelected = selectAll;
+            }
+            UpdateSelectedPostsDisplay();
+        }
+
+        [RelayCommand]
+        private void RefreshPostDisplay()
+        {
+            UpdateSelectedPostsDisplay();
+        }
+
+        private void UpdateSelectedPostsDisplay()
+        {
+            var selected = PostList.Where(p => p.IsSelected).Select(p => p.PostName).ToList();
+            SelectedPostsDisplay = selected.Count > 0 ? string.Join(", ", selected) : "请选择岗位";
+        }
+
+        [RelayCommand]
+        private void SelectAllRoles()
+        {
+            bool selectAll = RoleList.Any(r => !r.IsSelected);
+            foreach (var role in RoleList)
+            {
+                role.IsSelected = selectAll;
+            }
+            UpdateSelectedRolesDisplay();
+        }
+
+        /// <summary>
+        /// 当用户勾选/取消勾选角色时，刷新显示文本
+        /// </summary>
+        [RelayCommand]
+        private void RefreshRoleDisplay()
+        {
+            UpdateSelectedRolesDisplay();
+        }
+
+        private void UpdateSelectedRolesDisplay()
+        {
+            var selected = RoleList.Where(r => r.IsSelected).Select(r => r.RoleName).ToList();
+            SelectedRolesDisplay = selected.Count > 0 ? string.Join(", ", selected) : "请选择角色";
+        }
+
+        /// <summary>
+        /// 角色列表加载并回显后，刷新显示文本
+        /// </summary>
+        public void NotifyRolesLoaded()
+        {
+            UpdateSelectedRolesDisplay();
+        }
+
+        /// <summary>
+        /// 部门树加载完成后，回显已选部门
+        /// </summary>
+        public void NotifyDeptTreeLoaded()
+        {
+            if (DeptId.HasValue)
+            {
+                var dept = FindDeptById(DeptTree, DeptId.Value);
+                if (dept != null)
+                {
+                    SelectedDeptName = dept.DeptName;
+                }
+            }
+        }
+
+        private static SysDeptVO? FindDeptById(ObservableCollection<SysDeptVO> nodes, long deptId)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.DeptId == deptId)
+                    return node;
+
+                var found = FindDeptById(node.Children, deptId);
+                if (found != null)
+                    return found;
+            }
+            return null;
+        }
+
+        public SysUser ToEntity()
+        {
+            return new SysUser
+            {
+                UserId = UserId,
+                UserName = UserName,
+                NickName = NickName,
+                Password = string.Empty,
+                PhoneNumber = PhoneNumber,
+                Email = Email,
+                DeptId = DeptId,
+                Sex = Sex,
+                Status = Status,
+                Remark = Remark
+            };
+        }
+
+        public async Task SaveAsync()
+        {
+            try
+            {
+                var entity = ToEntity();
+                var roleIds = GetSelectedRoleIds();
+                var postIds = GetSelectedPostIds();
+                var apiResult = await _userService.UpdateUserAsync(entity, roleIds, postIds);
+                if (apiResult.IsSuccess)
+                    _dialogService.ShowSuccess("修改用户成功");
+                else
+                    _dialogService.ShowError(apiResult.Msg);
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowError("修改用户失败：" + ex.Message);
+            }
+        }
+
+        public void NotifyPostsLoaded()
+        {
+            UpdateSelectedPostsDisplay();
+        }
+
+        public List<long> GetSelectedPostIds()
+        {
+            return PostList.Where(p => p.IsSelected).Select(p => p.PostId).ToList();
+        }
+
+        public List<long> GetSelectedRoleIds()
+        {
+            return RoleList.Where(r => r.IsSelected).Select(r => r.RoleId).ToList();
+        }
+    }
+}

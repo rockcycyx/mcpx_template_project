@@ -1,0 +1,344 @@
+<Window x:Class="mcpx_template_project.Views.Pages.Admin.User.EditUserWindow"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:local="clr-namespace:mcpx_template_project.Views.Pages.Admin.User"
+      xmlns:vm="clr-namespace:mcpx_template_project.ViewModels.Admin.User"
+      xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+      mc:Ignorable="d" 
+      Title="修改用户" 
+      Height="520" Width="640"
+      WindowStartupLocation="CenterOwner"
+      ResizeMode="NoResize"
+      Background="{DynamicResource App.PageBackground}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="*用户昵称" VerticalAlignment="Center" Margin="0,0,10,15"/>
+        <TextBox Grid.Row="0" Grid.Column="1" Margin="0,0,0,15"
+                 Text="{Binding NickName, UpdateSourceTrigger=PropertyChanged}"
+                 ToolTip="请输入用户昵称"/>
+
+        <TextBlock Grid.Row="0" Grid.Column="2" Text="归属部门" VerticalAlignment="Center" Margin="20,0,10,15"/>
+        <Grid Grid.Row="0" Grid.Column="3" Margin="20,0,0,15">
+            <ToggleButton x:Name="DeptToggleBtn"
+                          Height="30"
+                          HorizontalContentAlignment="Left"
+                          Padding="10,0"
+                          Background="{DynamicResource App.CardBackground}"
+                          BorderBrush="{DynamicResource App.CardBorder}"
+                          BorderThickness="1"
+                          IsChecked="{Binding IsDeptPopupOpen, Mode=TwoWay}"
+                          Content="{Binding SelectedDeptName}">
+                <ToggleButton.Template>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Text="{TemplateBinding Content}"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource App.TextSecondary}"
+                                           TextTrimming="CharacterEllipsis"/>
+                                <Path Grid.Column="1"
+                                      Data="M0,0 L4,4 L8,0"
+                                      Width="12" Height="8"
+                                      Margin="5,0,0,0"
+                                      VerticalAlignment="Center"
+                                      Fill="{DynamicResource App.TextSecondary}"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource App.Accent}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource App.Accent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </ToggleButton.Template>
+            </ToggleButton>
+
+            <Popup x:Name="DeptPopup"
+                   PlacementTarget="{Binding ElementName=DeptToggleBtn}"
+                   Placement="Bottom"
+                   IsOpen="{Binding IsDeptPopupOpen, Mode=TwoWay}"
+                   AllowsTransparency="True"
+                   StaysOpen="False">
+                <Border Background="{DynamicResource App.CardBackground}"
+                        BorderBrush="{DynamicResource App.CardBorder}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Margin="0,2,0,0"
+                        MaxHeight="250"
+                        MinWidth="200">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Button Grid.Row="0"
+                                HorizontalAlignment="Right"
+                                Padding="8,4"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Content="清除选择"
+                                Command="{Binding ClearDeptCommand}"
+                                ClickMode="Release"/>
+                        <TreeView Grid.Row="1"
+                                  ItemsSource="{Binding DeptTree}"
+                                  SelectedItemChanged="DeptTreeView_SelectedItemChanged"
+                                  Background="{DynamicResource App.CardBackground}"
+                                  BorderThickness="0"
+                                  FontSize="13">
+                            <TreeView.ItemTemplate>
+                                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                    <TextBlock Text="{Binding DeptName}" VerticalAlignment="Center"/>
+                                </HierarchicalDataTemplate>
+                            </TreeView.ItemTemplate>
+                            <TreeView.ItemContainerStyle>
+                                <Style TargetType="TreeViewItem">
+                                    <Setter Property="IsExpanded" Value="True"/>
+                                </Style>
+                            </TreeView.ItemContainerStyle>
+                        </TreeView>
+                    </Grid>
+                </Border>
+            </Popup>
+        </Grid>
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="手机号码" VerticalAlignment="Center" Margin="0,0,10,15"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,15"
+                 Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"
+                 ToolTip="请输入手机号码"/>
+
+        <TextBlock Grid.Row="1" Grid.Column="2" Text="邮箱" VerticalAlignment="Center" Margin="20,0,10,15"/>
+        <TextBox Grid.Row="1" Grid.Column="3" Margin="20,0,0,15"
+                 Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
+                 ToolTip="请输入邮箱"/>
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="用户性别" VerticalAlignment="Center" Margin="0,0,10,15"/>
+        <ComboBox Grid.Row="2" Grid.Column="1" Margin="0,0,0,15"
+                  ItemsSource="{Binding SexOptions}"
+                  DisplayMemberPath="Label"
+                  SelectedValuePath="Value"
+                  SelectedValue="{Binding Sex, Mode=TwoWay}"/>
+
+        <TextBlock Grid.Row="2" Grid.Column="2" Text="状态" VerticalAlignment="Center" Margin="20,0,10,15"/>
+        <ui:ToggleSwitch Grid.Row="2" Grid.Column="3" Margin="20,0,0,15"
+                         IsOn="{Binding IsStatusActive, Mode=TwoWay}"/>
+
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="岗位" VerticalAlignment="Center" Margin="0,0,10,15"/>
+        <Grid Grid.Row="3" Grid.Column="1" Margin="0,0,0,15">
+            <ToggleButton x:Name="PostToggleBtn"
+                          Height="30"
+                          HorizontalContentAlignment="Left"
+                          Padding="10,0"
+                          Background="{DynamicResource App.CardBackground}"
+                          BorderBrush="{DynamicResource App.CardBorder}"
+                          BorderThickness="1"
+                          IsChecked="{Binding IsPostPopupOpen, Mode=TwoWay}"
+                          Content="{Binding SelectedPostsDisplay}">
+                <ToggleButton.Template>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Text="{TemplateBinding Content}"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource App.TextSecondary}"
+                                           TextTrimming="CharacterEllipsis"/>
+                                <Path Grid.Column="1"
+                                      Data="M0,0 L4,4 L8,0"
+                                      Width="12" Height="8"
+                                      Margin="5,0,0,0"
+                                      VerticalAlignment="Center"
+                                      Fill="{DynamicResource App.TextSecondary}"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource App.Accent}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource App.Accent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </ToggleButton.Template>
+            </ToggleButton>
+
+            <Popup x:Name="PostPopup"
+                   PlacementTarget="{Binding ElementName=PostToggleBtn}"
+                   Placement="Bottom"
+                   IsOpen="{Binding IsPostPopupOpen, Mode=TwoWay}"
+                   AllowsTransparency="True"
+                   StaysOpen="False">
+                <Border Background="{DynamicResource App.CardBackground}"
+                        BorderBrush="{DynamicResource App.CardBorder}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Margin="0,2,0,0"
+                        MaxHeight="200"
+                        MinWidth="200"
+                        HorizontalAlignment="Left">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <Button HorizontalAlignment="Right"
+                                    Padding="8,4"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Content="全选/反选"
+                                    Command="{Binding SelectAllPostsCommand}"
+                                    ClickMode="Release"/>
+                            <ItemsControl ItemsSource="{Binding PostList}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding PostName}"
+                                                  IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                  Command="{Binding DataContext.RefreshPostDisplayCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                  Padding="10,6"
+                                                  VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Popup>
+        </Grid>
+
+        <TextBlock Grid.Row="3" Grid.Column="2" Text="角色" VerticalAlignment="Center" Margin="20,0,10,15"/>
+        <Grid Grid.Row="3" Grid.Column="3" Margin="20,0,0,15">
+            <ToggleButton x:Name="RoleToggleBtn"
+                          Height="30"
+                          HorizontalContentAlignment="Left"
+                          Padding="10,0"
+                          Background="{DynamicResource App.CardBackground}"
+                          BorderBrush="{DynamicResource App.CardBorder}"
+                          BorderThickness="1"
+                          IsChecked="{Binding IsRolePopupOpen, Mode=TwoWay}"
+                          Content="{Binding SelectedRolesDisplay}">
+                <ToggleButton.Template>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Text="{TemplateBinding Content}"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource App.TextSecondary}"
+                                           TextTrimming="CharacterEllipsis"/>
+                                <Path Grid.Column="1"
+                                      Data="M0,0 L4,4 L8,0"
+                                      Width="12" Height="8"
+                                      Margin="5,0,0,0"
+                                      VerticalAlignment="Center"
+                                      Fill="{DynamicResource App.TextSecondary}"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource App.Accent}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource App.Accent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </ToggleButton.Template>
+            </ToggleButton>
+
+            <Popup x:Name="RolePopup"
+                   PlacementTarget="{Binding ElementName=RoleToggleBtn}"
+                   Placement="Bottom"
+                   IsOpen="{Binding IsRolePopupOpen, Mode=TwoWay}"
+                   AllowsTransparency="True"
+                   StaysOpen="False">
+                <Border Background="{DynamicResource App.CardBackground}"
+                        BorderBrush="{DynamicResource App.CardBorder}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Margin="0,2,0,0"
+                        MaxHeight="200"
+                        MinWidth="200"
+                        HorizontalAlignment="Left">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <Button HorizontalAlignment="Right"
+                                    Padding="8,4"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Content="全选/反选"
+                                    Command="{Binding SelectAllRolesCommand}"
+                                    ClickMode="Release"/>
+                            <ItemsControl ItemsSource="{Binding RoleList}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding RoleName}"
+                                                  IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                  Command="{Binding DataContext.RefreshRoleDisplayCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                  Padding="10,6"
+                                                  VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Popup>
+        </Grid>
+
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="备注" VerticalAlignment="Center" Margin="0,0,10,0"/>
+        <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,0"
+                 Text="{Binding Remark, UpdateSourceTrigger=PropertyChanged}"
+                 AcceptsReturn="True"
+                 Height="60"
+                 ToolTip="请输入备注"/>
+
+        <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource App.Danger}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <Button Content="确定" Width="80" Margin="0,0,10,0"
+                       Click="ConfirmBtn_Click"/>
+            <Button Content="取消" Width="80" Margin="0,0,0,0"
+                       Click="CancelBtn_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="mcpx_template_project.Views.Controls.PagerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:mcpx_template_project.Views.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <!-- 第一列留空白占位，剩余全部宽度给最后一列 -->
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 全部分页组件放在第1列，整体右对齐，内部横向排列 -->
+        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+            <!-- 1. 总页数+每页条数 -->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,20,0">
+                <TextBlock Text="共" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                <TextBlock Text="{Binding TotalPages, RelativeSource={RelativeSource AncestorType=UserControl}}" VerticalAlignment="Center" FontWeight="Bold"/>
+                <TextBlock Text="页" VerticalAlignment="Center" Margin="4,0,12,0"/>
+                <TextBlock Text="每页：" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                <ComboBox Width="70"
+                          ItemsSource="{Binding PageSizeOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          SelectedItem="{Binding PageSize, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"
+                          SelectionChanged="PageSize_SelectionChanged"
+                          VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- 2. 上一页/下一页 -->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,20,0">
+                <Button Content="前一页" Click="Prev_Click" Margin="0,0,8,0"/>
+                <TextBlock Text="第" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                <TextBlock Text="{Binding PageIndex, RelativeSource={RelativeSource AncestorType=UserControl}}" VerticalAlignment="Center" FontWeight="Bold"/>
+                <TextBlock Text="/" VerticalAlignment="Center" Margin="4,0"/>
+                <TextBlock Text="{Binding TotalPages, RelativeSource={RelativeSource AncestorType=UserControl}}" VerticalAlignment="Center" FontWeight="Bold" Margin="4,0,8,0"/>
+                <Button Content="后一页" Click="Next_Click"/>
+            </StackPanel>
+
+            <!-- 3. 跳转页码 -->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="前往" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                <TextBox x:Name="GotoBox" Width="60" VerticalContentAlignment="Center" Margin="0,0,6,0"/>
+                <Button Content="前往" Click="Goto_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

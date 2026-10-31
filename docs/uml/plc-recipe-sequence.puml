@@ -1,0 +1,48 @@
+@startuml plc-recipe-sequence
+' 配方下发 · 三态握手时序图（v3.0）
+' 在 PlantUML 在线编辑器 (https://www.plantuml.com/plantuml) 或本地 plantuml.jar 中渲染
+
+skinparam shadowing false
+skinparam sequenceArrowThickness 1.5
+
+title 配方下发 · 三态握手时序图
+
+actor "PagePNSelectViewModel" as VM
+participant "PlcObjectService" as SVC
+participant "IPlcCommunicationService" as PLC
+participant "PLC（设备）" as Dev
+
+VM -> SVC : 1. WriteAsync<Recipe>(settingId, recipe)
+SVC -> PLC : 2. IsConnected(settingId)
+
+alt 未连接
+    SVC --> VM : PlcWriteResult{Success=false}
+else 已连接
+    loop 每个 WriteValues 字段
+        SVC -> SVC : accessor.GetValue(obj, prop)
+        SVC -> PLC : WriteSinglePointAsync(值点位)
+        PLC -> Dev : 写入寄存器
+    end
+    SVC -> PLC : WriteSinglePointAsync(Trigger, true)
+    PLC -> Dev : 触发位置 1
+
+    loop 轮询回复位(100ms, 超时5s)
+        SVC -> PLC : GetCachedPoints()
+        PLC --> SVC : 回复位状态(0/1/2)
+    end
+
+    alt 回复 = ACK(1)
+        SVC -> PLC : 触发位复归 0
+        PLC -> Dev : 触发位复归 0
+        note over Dev : PLC 检测触发位=0，回复位复归 0
+        SVC --> VM : PlcWriteResult{Success=true}
+    else 回复 = NAK(2)
+        SVC -> PLC : 触发位复归 0
+        SVC --> VM : PlcWriteResult{Success=false, NAK}
+    else 超时无回应
+        SVC -> PLC : 触发位复归 0
+        SVC --> VM : PlcWriteResult{Success=false, 超时}
+    end
+end
+
+@enduml

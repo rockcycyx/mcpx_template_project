@@ -1,0 +1,881 @@
+<Page x:Class="mcpx_template_project.Views.Pages.Business.Secs.PageSecsConfig"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:mcpx_template_project.ViewModels.Business.Secs"
+        xmlns:ctrl="clr-namespace:mcpx_template_project.Views.Controls"
+        xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+        mc:Ignorable="d"
+        Title="SECS/GEM 配置"
+        Background="{DynamicResource App.PageBackground}"
+        FontSize="13">
+
+    <Page.Resources>
+        <!-- 左侧树节点模板（无图标，仅标题 + 副标题） -->
+        <HierarchicalDataTemplate DataType="{x:Type vm:SecsConfigTreeNode}"
+                                  ItemsSource="{Binding Children}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding Title}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Subtitle}" VerticalAlignment="Center" Margin="8,0,0,0" FontSize="11">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{DynamicResource App.TextTertiary}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Enabled}" Value="False">
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+        </HierarchicalDataTemplate>
+
+        <!-- 状态胶囊：可点击切换，启用=绿色胶囊，停用=灰色胶囊 -->
+        <Style x:Key="StatusPillButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="MinWidth" Value="56"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="#20000000"/>
+            <Setter Property="Foreground" Value="{DynamicResource App.TextSecondary}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Pill" CornerRadius="12" Padding="12,2"
+                                Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              Content="{TemplateBinding Content}"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"
+                                              TextElement.FontSize="12"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Pill" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部：实例选择器 -->
+        <Border Grid.Row="0" Margin="0,0,0,10" Padding="14,10"
+                Background="{DynamicResource App.CardBackground}" CornerRadius="8">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="SECS 实例" VerticalAlignment="Center" Margin="0,0,10,0"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource App.TextSecondary}"/>
+                <ComboBox Width="260" Height="30" VerticalContentAlignment="Center"
+                          ItemsSource="{Binding Instances}"
+                          DisplayMemberPath="Name"
+                          SelectedItem="{Binding SelectedInstance}"/>
+                <Button Content="刷新实例" Width="88" Margin="12,0,0,0"
+                        Command="{Binding RefreshInstancesCommand}"/>
+                <Button Margin="12,0,0,0" Padding="8,0" VerticalAlignment="Center"
+                        Cursor="Hand" Command="{Binding ToggleTreeCommand}"
+                        ToolTip="折叠/展开结构总图">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.ChevronRight}" FontSize="14"
+                                     VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="总图" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- 主体：三列布局（左树 + 分隔线 + 右 Tab），左侧容器可整体折叠 -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MinWidth="0">
+                    <ColumnDefinition.Style>
+                        <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="280"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsTreeExpanded}" Value="False">
+                                    <Setter Property="Width" Value="0"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" MinWidth="420"/>
+            </Grid.ColumnDefinitions>
+
+        <!-- 左侧：完整树总图 -->
+        <Border Grid.Column="0" Margin="0,0,0,0" Padding="10"
+                Background="{DynamicResource App.CardBackground}" CornerRadius="8"
+                Visibility="{Binding IsTreeExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- 标题行：折叠按钮 + 文字 + 刷新图标 -->
+                <Grid Grid.Row="0" Margin="2,0,0,8" Background="Transparent">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Background="Transparent" BorderThickness="0" Padding="0"
+                            Cursor="Hand" Command="{Binding ToggleTreeCommand}"
+                            ToolTip="折叠总图">
+                        <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.ChevronLeft}"
+                                     FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    </Button>
+
+                    <TextBlock Grid.Column="1" Text="SECS/GEM 结构总图" FontWeight="SemiBold"
+                               Foreground="{DynamicResource App.TextSecondary}"
+                               VerticalAlignment="Center"/>
+
+                    <Button Grid.Column="2" Background="Transparent" BorderThickness="0" Padding="2"
+                            Cursor="Hand" Command="{Binding ReloadAllCommand}"
+                            ToolTip="刷新">
+                        <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.Refresh}"
+                                     FontSize="14"
+                                     Foreground="{DynamicResource App.TextSecondary}"
+                                     VerticalAlignment="Center"/>
+                    </Button>
+                </Grid>
+
+                <TreeView Grid.Row="1" ItemsSource="{Binding TreeNodes}"
+                          Background="Transparent" BorderThickness="0"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem"
+                               BasedOn="{StaticResource DefaultTreeViewItemStyle}">
+                            <Setter Property="IsExpanded" Value="True"/>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                </TreeView>
+            </Grid>
+        </Border>
+
+        <!-- 分隔线（可拖动调整左右宽度）；折叠时隐藏 -->
+        <GridSplitter Grid.Column="1" Width="6" HorizontalAlignment="Center"
+                      VerticalAlignment="Stretch" Background="Transparent"
+                      Visibility="{Binding IsTreeExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"
+                      ShowsPreview="True"/>
+
+        <!-- 右侧：Tab 分页签 CRUD -->
+        <TabControl Grid.Column="2"
+                    SelectedIndex="{Binding SelectedTabIndex}"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Margin="12,0,0,0">
+            <!-- VID Tab -->
+            <TabItem Header="VID 变量">
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Margin="0,0,0,10" Padding="14,12"
+                            Background="{DynamicResource App.CardBackground}" CornerRadius="8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="类型" VerticalAlignment="Center" Margin="0,0,8,0"
+                                               Foreground="{DynamicResource App.TextSecondary}"/>
+                                    <ComboBox Width="150" Height="30" VerticalContentAlignment="Center"
+                                              ItemsSource="{Binding VidTab.TypeOptions}"
+                                              DisplayMemberPath="Display"
+                                              SelectedValuePath="Value"
+                                              SelectedValue="{Binding VidTab.FilterType}"/>
+                                    <TextBlock Text="名称" VerticalAlignment="Center" Margin="16,0,8,0"
+                                               Foreground="{DynamicResource App.TextSecondary}"/>
+                                    <TextBox Width="150" VerticalContentAlignment="Center"
+                                             Text="{Binding VidTab.Keyword, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="设备代号" VerticalAlignment="Center" Margin="16,0,8,0"
+                                               Foreground="{DynamicResource App.TextSecondary}"/>
+                                    <TextBox Width="110" VerticalContentAlignment="Center"
+                                             Text="{Binding VidTab.DeviceCode, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="点位地址" VerticalAlignment="Center" Margin="16,0,8,0"
+                                               Foreground="{DynamicResource App.TextSecondary}"/>
+                                    <TextBox Width="110" VerticalContentAlignment="Center"
+                                             Text="{Binding VidTab.PlcAddress, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="状态" VerticalAlignment="Center" Margin="16,0,8,0"
+                                               Foreground="{DynamicResource App.TextSecondary}"/>
+                                    <ComboBox Width="90" Height="30" VerticalContentAlignment="Center"
+                                              SelectedValuePath="Tag"
+                                              SelectedValue="{Binding VidTab.FilterStatus}">
+                                        <ComboBoxItem Content="全部" Tag="{x:Null}"/>
+                                        <ComboBoxItem Content="启用" Tag="0"/>
+                                        <ComboBoxItem Content="停用" Tag="1"/>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,8,0,0">
+                                    <Button Content="搜索" Width="72"
+                                            Command="{Binding VidTab.SearchCommand}"/>
+                                    <Button Content="重置" Width="72" Margin="8,0,0,0"
+                                            Command="{Binding VidTab.ResetCommand}"/>
+                                </StackPanel>
+                            </Grid>
+                            <Button Grid.Column="1" Content="新增 VID" Width="115" VerticalAlignment="Top"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Command="{Binding VidTab.AddVidCommand}"/>
+                        </Grid>
+                    </Border>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding VidTab.Vids}"
+                              SelectedItem="{Binding VidTab.SelectedVid}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserResizeColumns="True"
+                              GridLinesVisibility="Horizontal"
+                              HeadersVisibility="Column"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              RowHeaderWidth="0"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              ColumnHeaderStyle="{StaticResource FluentDataGridColumnHeader}"
+                              RowStyle="{StaticResource FluentDataGridRow}"
+                              CellStyle="{StaticResource FluentDataGridCell}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="70" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="类型" Binding="{Binding VidType}" Width="80" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="VID编号" Binding="{Binding VidId}" Width="90" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="*" MinWidth="120" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="数据类型" Binding="{Binding DataType}" Width="90" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="来源" Binding="{Binding Source}" Width="80" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="设备代号" Binding="{Binding DeviceCode}" Width="90" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="点位地址" Binding="{Binding PlcAddress}" Width="110" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="固定值" Binding="{Binding DefaultValue}" Width="*" MinWidth="90" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTemplateColumn Header="状态" Width="80" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Command="{Binding DataContext.VidTab.ToggleStatusCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource StatusPillButtonStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="0">
+                                                            <Setter Property="Content" Value="启用"/>
+                                                            <Setter Property="Background" Value="#2000C853"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource App.Success}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="1">
+                                                            <Setter Property="Content" Value="停用"/>
+                                                            <Setter Property="Background" Value="#20000000"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource App.TextSecondary}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="操作" Width="130" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Button Content="编辑" Width="60" Margin="0,0,6,0"
+                                                    Command="{Binding DataContext.VidTab.EditVidCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                    CommandParameter="{Binding}"/>
+                                            <Button Content="删除" Width="60"
+                                                    Command="{Binding DataContext.VidTab.DeleteVidCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Grid Grid.Row="2" Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" FontSize="12" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource App.TextSecondary}"
+                                   Text="{Binding VidTab.Summary}"/>
+                        <ctrl:PagerControl Grid.Column="1"
+                                           PageIndex="{Binding VidTab.PageIndex, Mode=TwoWay}"
+                                           PageSize="{Binding VidTab.PageSize, Mode=TwoWay}"
+                                           TotalItems="{Binding VidTab.TotalItems}"
+                                           PageSizeOptions="{Binding VidTab.PageSizeOptions}"
+                                           PageChangedCommand="{Binding VidTab.LoadPageCommand}"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <!-- Report Tab -->
+            <TabItem Header="Report 采集组">
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Margin="0,0,0,10" Padding="14,12"
+                            Background="{DynamicResource App.CardBackground}" CornerRadius="8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Report 采集组"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource App.TextSecondary}"/>
+                            <Button Grid.Column="1" Content="新增 Report" Width="135"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Command="{Binding ReportTab.AddReportCommand}"/>
+                        </Grid>
+                    </Border>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding ReportTab.Reports}"
+                              SelectedItem="{Binding ReportTab.SelectedReport}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserResizeColumns="True"
+                              GridLinesVisibility="Horizontal"
+                              HeadersVisibility="Column"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              RowHeaderWidth="0"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              ColumnHeaderStyle="{StaticResource FluentDataGridColumnHeader}"
+                              RowStyle="{StaticResource FluentDataGridRow}"
+                              CellStyle="{StaticResource FluentDataGridCell}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="70" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Report编号" Binding="{Binding ReportId}" Width="100" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="*" MinWidth="140" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="VID数量" Binding="{Binding Vids.Count}" Width="90" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTemplateColumn Header="状态" Width="80" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Command="{Binding DataContext.ReportTab.ToggleStatusCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource StatusPillButtonStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="0">
+                                                            <Setter Property="Content" Value="启用"/>
+                                                            <Setter Property="Background" Value="#2000C853"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource App.Success}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="1">
+                                                            <Setter Property="Content" Value="停用"/>
+                                                            <Setter Property="Background" Value="#20000000"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource App.TextSecondary}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="操作" Width="135" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Button Content="编辑" Width="60" Margin="0,0,6,0"
+                                                    Command="{Binding DataContext.ReportTab.EditReportCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                    CommandParameter="{Binding}"/>
+                                            <Button Content="删除" Width="60"
+                                                    Command="{Binding DataContext.ReportTab.DeleteReportCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Grid Grid.Row="2" Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" FontSize="12" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource App.TextSecondary}"
+                                   Text="{Binding ReportTab.Summary}"/>
+                        <ctrl:PagerControl Grid.Column="1"
+                                           PageIndex="{Binding ReportTab.PageIndex, Mode=TwoWay}"
+                                           PageSize="{Binding ReportTab.PageSize, Mode=TwoWay}"
+                                           TotalItems="{Binding ReportTab.TotalItems}"
+                                           PageSizeOptions="{Binding ReportTab.PageSizeOptions}"
+                                           PageChangedCommand="{Binding ReportTab.LoadPageCommand}"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <!-- Event Tab -->
+            <TabItem Header="Event 事件">
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Margin="0,0,0,10" Padding="14,12"
+                            Background="{DynamicResource App.CardBackground}" CornerRadius="8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="收集事件"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource App.TextSecondary}"/>
+                            <Button Grid.Column="1" Content="新增 Event" Width="130"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Command="{Binding EventTab.AddEventCommand}"/>
+                        </Grid>
+                    </Border>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding EventTab.Ceids}"
+                              SelectedItem="{Binding EventTab.SelectedCeid}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserResizeColumns="True"
+                              GridLinesVisibility="Horizontal"
+                              HeadersVisibility="Column"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              RowHeaderWidth="0"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              ColumnHeaderStyle="{StaticResource FluentDataGridColumnHeader}"
+                              RowStyle="{StaticResource FluentDataGridRow}"
+                              CellStyle="{StaticResource FluentDataGridCell}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="70" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="CEID编号" Binding="{Binding Ceid}" Width="100" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="*" MinWidth="140" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Report数量" Binding="{Binding Reports.Count}" Width="100" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTemplateColumn Header="状态" Width="80" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Command="{Binding DataContext.EventTab.ToggleStatusCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource StatusPillButtonStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="0">
+                                                            <Setter Property="Content" Value="启用"/>
+                                                            <Setter Property="Background" Value="#2000C853"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource App.Success}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="1">
+                                                            <Setter Property="Content" Value="停用"/>
+                                                            <Setter Property="Background" Value="#20000000"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource App.TextSecondary}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="操作" Width="130" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Button Content="编辑" Width="60" Margin="0,0,6,0"
+                                                    Command="{Binding DataContext.EventTab.EditEventCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                    CommandParameter="{Binding}"/>
+                                            <Button Content="删除" Width="60"
+                                                    Command="{Binding DataContext.EventTab.DeleteEventCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Grid Grid.Row="2" Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" FontSize="12" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource App.TextSecondary}"
+                                   Text="{Binding EventTab.Summary}"/>
+                        <ctrl:PagerControl Grid.Column="1"
+                                           PageIndex="{Binding EventTab.PageIndex, Mode=TwoWay}"
+                                           PageSize="{Binding EventTab.PageSize, Mode=TwoWay}"
+                                           TotalItems="{Binding EventTab.TotalItems}"
+                                           PageSizeOptions="{Binding EventTab.PageSizeOptions}"
+                                           PageChangedCommand="{Binding EventTab.LoadPageCommand}"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <!-- SxFy Tab（权限表） -->
+            <TabItem Header="SxFy 权限">
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 查询栏 + 新增按钮 -->
+                    <Border Grid.Row="0" Margin="0,0,0,10" Padding="14,12"
+                            Background="{DynamicResource App.CardBackground}" CornerRadius="8">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="SxFy" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource App.TextSecondary}" Margin="0,0,8,0"/>
+                                <TextBox Grid.Column="1" Width="120" VerticalContentAlignment="Center" Padding="6,3" Margin="0,0,14,0"
+                                         Text="{Binding SxFyTab.FilterSxF, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Grid.Column="2" Text="OffLine" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource App.TextSecondary}" Margin="0,0,8,0"/>
+                                <ComboBox Grid.Column="3" Width="100" Height="28" Margin="0,0,14,0"
+                                          ItemsSource="{Binding SxFyTab.StateFilterOptions}"
+                                          SelectedValue="{Binding SxFyTab.FilterOffline}"
+                                          SelectedValuePath="Value" DisplayMemberPath="Label"/>
+
+                                <TextBlock Grid.Column="4" Text="OnLine Local" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource App.TextSecondary}" Margin="0,0,8,0"/>
+                                <ComboBox Grid.Column="5" Width="100" Height="28" Margin="0,0,14,0"
+                                          ItemsSource="{Binding SxFyTab.StateFilterOptions}"
+                                          SelectedValue="{Binding SxFyTab.FilterOnlineLocal}"
+                                          SelectedValuePath="Value" DisplayMemberPath="Label"/>
+
+                                <TextBlock Grid.Column="6" Text="OnLine Remote" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource App.TextSecondary}" Margin="0,0,8,0"/>
+                                <ComboBox Grid.Column="7" Width="100" Height="28" Margin="0,0,14,0"
+                                          ItemsSource="{Binding SxFyTab.StateFilterOptions}"
+                                          SelectedValue="{Binding SxFyTab.FilterOnlineRemote}"
+                                          SelectedValuePath="Value" DisplayMemberPath="Label"/>
+
+                                <Button Grid.Column="8" Content="查询" Width="70" Margin="0,0,8,0"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        Command="{Binding SxFyTab.SearchCommand}"/>
+                                <Button Grid.Column="9" Content="重置" Width="70"
+                                        Command="{Binding SxFyTab.ResetFilterCommand}"/>
+                            </Grid>
+                            <Grid Grid.Row="1" Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="SxFy 消息权限（各控制状态是否允许执行；勾选可直接修改）"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource App.TextSecondary}"/>
+                                <Button Grid.Column="1" Content="新增 SxFy" Width="120"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        Command="{Binding SxFyTab.AddSxFyCommand}"/>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding SxFyTab.Items}"
+                              SelectedItem="{Binding SxFyTab.SelectedItem}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserResizeColumns="True"
+                              GridLinesVisibility="Horizontal"
+                              HeadersVisibility="Column"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              RowHeaderWidth="0"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              ColumnHeaderStyle="{StaticResource FluentDataGridColumnHeader}"
+                              RowStyle="{StaticResource FluentDataGridRow}"
+                              CellStyle="{StaticResource FluentDataGridCell}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="消息" Binding="{Binding SxF}" Width="110" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="*" MinWidth="140" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTemplateColumn Header="OffLine" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                      IsChecked="{Binding AllowOffline, UpdateSourceTrigger=PropertyChanged}"
+                                                      Command="{Binding DataContext.SxFyTab.SavePermissionsCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                      CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="OnLine Local" Width="110">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                      IsChecked="{Binding AllowOnlineLocal, UpdateSourceTrigger=PropertyChanged}"
+                                                      Command="{Binding DataContext.SxFyTab.SavePermissionsCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                      CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="OnLine Remote" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                      IsChecked="{Binding AllowOnlineRemote, UpdateSourceTrigger=PropertyChanged}"
+                                                      Command="{Binding DataContext.SxFyTab.SavePermissionsCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                      CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="状态" Width="80" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Command="{Binding DataContext.SxFyTab.ToggleStatusCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource StatusPillButtonStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="0">
+                                                            <Setter Property="Content" Value="启用"/>
+                                                            <Setter Property="Background" Value="#2000C853"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource App.Success}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="1">
+                                                            <Setter Property="Content" Value="停用"/>
+                                                            <Setter Property="Background" Value="#20000000"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource App.TextSecondary}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="操作" Width="130" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Button Content="编辑" Width="60" Margin="0,0,6,0"
+                                                    Command="{Binding DataContext.SxFyTab.EditSxFyCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                    CommandParameter="{Binding}"/>
+                                            <Button Content="删除" Width="60"
+                                                    Command="{Binding DataContext.SxFyTab.DeleteSxFyCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Grid Grid.Row="2" Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" FontSize="12" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource App.TextSecondary}"
+                                   Text="{Binding SxFyTab.Summary}"/>
+                        <ctrl:PagerControl Grid.Column="1"
+                                           PageIndex="{Binding SxFyTab.PageIndex, Mode=TwoWay}"
+                                           PageSize="{Binding SxFyTab.PageSize, Mode=TwoWay}"
+                                           TotalItems="{Binding SxFyTab.TotalItems}"
+                                           PageSizeOptions="{Binding SxFyTab.PageSizeOptions}"
+                                           PageChangedCommand="{Binding SxFyTab.LoadPageCommand}"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <!-- HCMD Tab（Host 指令） -->
+            <TabItem Header="HCMD">
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Margin="0,0,0,10" Padding="14,12"
+                            Background="{DynamicResource App.CardBackground}" CornerRadius="8">
+                        <TextBlock Text="Host 指令（S2F41 Remote Command）"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource App.TextSecondary}"/>
+                    </Border>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding HcmdTab.Commands}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserResizeColumns="True"
+                              GridLinesVisibility="Horizontal"
+                              HeadersVisibility="Column"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              RowHeaderWidth="0"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              ColumnHeaderStyle="{StaticResource FluentDataGridColumnHeader}"
+                              RowStyle="{StaticResource FluentDataGridRow}"
+                              CellStyle="{StaticResource FluentDataGridCell}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="命令名" Binding="{Binding CommandName}" Width="140" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="承载类型" Binding="{Binding DeclaringType.Name}" Width="220" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="方法名" Binding="{Binding MethodName}" Width="160" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="参数签名" Binding="{Binding Signature}" Width="*" MinWidth="240" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Grid Grid.Row="2" Margin="0,8,0,0">
+                        <TextBlock FontSize="12" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource App.TextSecondary}"
+                                   Text="{Binding HcmdTab.Summary}"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        </Grid>
+    </Grid>
+</Page>

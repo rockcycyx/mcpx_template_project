@@ -1,0 +1,71 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- RowContextMenu：白底、浅灰边框、微微圆角，去除默认左侧图标槽 -->
+    <Style x:Key="RowContextMenuStyle" TargetType="ContextMenu">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="HasDropShadow" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <Border Background="{DynamicResource App.PageBackground}" BorderBrush="{DynamicResource App.CardBorder}" BorderThickness="1"
+                            CornerRadius="6" Padding="4" Margin="8"
+                            Effect="{DynamicResource RowContextMenuShadow}">
+                        <StackPanel IsItemsHost="True"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <DropShadowEffect x:Key="RowContextMenuShadow" BlurRadius="10" ShadowDepth="2"
+                      Opacity="0.18" Color="#000000"/>
+
+    <!-- 菜单项：仅文字，圆角悬停背景，无图标槽分割线；支持子菜单（含箭头 + 弹出） -->
+    <Style x:Key="RowMenuItemStyle" TargetType="MenuItem">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="MenuItem">
+                    <Grid>
+                        <Border x:Name="Bd" Background="Transparent" CornerRadius="4"
+                                Padding="14,8" Margin="2" SnapsToDevicePixels="True">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter Grid.Column="0" ContentSource="Header" VerticalAlignment="Center"/>
+                                <!-- 子菜单箭头：仅当存在子菜单时显示 -->
+                                <Path Grid.Column="1" x:Name="SubMenuArrow" Data="M 0 0 L 4 4 L 0 8 Z"
+                                      Fill="{DynamicResource App.TextTertiary}" Width="7" Height="9" VerticalAlignment="Center"
+                                      Margin="8,0,4,0" Visibility="Collapsed"/>
+                            </Grid>
+                        </Border>
+                        <Popup x:Name="PART_Popup" Placement="Right" VerticalOffset="-3"
+                               HorizontalOffset="2" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                               AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                            <Border Background="{DynamicResource App.PageBackground}" BorderBrush="{DynamicResource App.CardBorder}" BorderThickness="1"
+                                    CornerRadius="6" Padding="4" Margin="2"
+                                    Effect="{DynamicResource RowContextMenuShadow}">
+                                <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource App.Hover}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource App.TextTertiary}"/>
+                        </Trigger>
+                        <Trigger Property="Role" Value="SubmenuHeader">
+                            <Setter TargetName="SubMenuArrow" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

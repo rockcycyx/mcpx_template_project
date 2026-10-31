@@ -1,0 +1,100 @@
+<Window x:Class="mcpx_template_project.Views.Pages.Business.Secs.SecsReportFieldWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Report"
+        Height="560" Width="620"
+        MinHeight="500" MinWidth="540"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        Background="{DynamicResource App.PageBackground}"
+        FontSize="13"
+        Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource App.TextSecondary}"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 基本信息 -->
+        <Border Grid.Row="0" Padding="20,16,20,4" Background="Transparent">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="110"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource FieldLabel}" Text="Report 编号"/>
+                <TextBox Grid.Row="0" Grid.Column="1" VerticalContentAlignment="Center" Padding="6,3" Margin="0,0,0,12"
+                         Text="{Binding ReportIdText, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource FieldLabel}" Text="名称"/>
+                <TextBox Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center" Padding="6,3" Margin="0,0,0,12"
+                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource FieldLabel}" Text="状态"/>
+                <ComboBox Grid.Row="2" Grid.Column="1" Height="30" Margin="0,0,0,0"
+                          SelectedValuePath="Tag"
+                          SelectedValue="{Binding Status}">
+                    <ComboBoxItem Content="启用" Tag="0"/>
+                    <ComboBoxItem Content="停用" Tag="1"/>
+                </ComboBox>
+            </Grid>
+        </Border>
+
+        <!-- VID 多选 -->
+        <Border Grid.Row="1" Margin="20,12,20,0" Padding="12,10"
+                BorderBrush="{DynamicResource App.Divider}" BorderThickness="1" CornerRadius="6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="选择成员 VID（勾选顺序即上报顺序）" FontWeight="SemiBold"
+                           Foreground="{DynamicResource App.TextSecondary}" Margin="2,0,0,8"/>
+                <ListBox Grid.Row="1" ItemsSource="{Binding VidOptions}"
+                         Background="Transparent" BorderThickness="0"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsSelected}"
+                                      Content="{Binding Display}"
+                                      VerticalAlignment="Center"
+                                      VerticalContentAlignment="Center"
+                                      MinWidth="0" MinHeight="0"
+                                      Padding="2,0"
+                                      Margin="0,1"
+                                      Click="VidCheckBox_Click"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,20,16">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource App.Danger}"
+                       VerticalAlignment="Center" Margin="0,0,14,0"/>
+            <Button Content="确定" Width="88" Margin="0,0,10,0"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Click="ConfirmBtn_Click"/>
+            <Button Content="取消" Width="88" Click="CancelBtn_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

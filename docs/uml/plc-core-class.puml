@@ -1,0 +1,184 @@
+@startuml plc-core-class
+' PLC 通讯架构 · 核心类图（v3.0 读写注解分离 + 通用门面）
+' 在 PlantUML 在线编辑器 (https://www.plantuml.com/plantuml) 或本地 plantuml.jar 中渲染
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam classBorderColor #888780
+skinparam classBackgroundColor #FBFBF9
+
+title PLC 通讯架构 · 核心类图
+
+enum PlcDevice {
+    D = 0
+    W = 1
+    M = 2
+    X = 3
+    Y = 4
+    L = 5
+    F = 6
+    V = 7
+    B = 8
+    S = 9
+    SM = 10
+    SD = 11
+}
+
+enum PlcWriteRole {
+    Value = 0
+    Trigger = 1
+    Reply = 2
+}
+
+class PlcReadAttribute {
+    + DeviceCode : PlcDevice
+    + Address : string
+    + Offset : int
+    + DisplayName : string?
+}
+
+class PlcWriteAttribute {
+    + DeviceCode : PlcDevice
+    + Address : string
+    + Offset : int
+    + DisplayName : string?
+    + Role : PlcWriteRole
+}
+
+class PlcReadDefinition {
+    + PropertyName : string
+    + DeviceCode : PlcDevice
+    + Address : string
+    + Offset : int
+    + DataType : Type
+    + DisplayName : string?
+}
+
+class PlcWriteDefinition {
+    + PropertyName : string
+    + DeviceCode : PlcDevice
+    + Address : string
+    + Offset : int
+    + DataType : Type
+    + DisplayName : string?
+    + Role : PlcWriteRole
+}
+
+class PlcObjectPlan {
+    + Reads : IReadOnlyList<PlcReadDefinition>
+    + WriteValues : IReadOnlyList<PlcWriteDefinition>
+    + Trigger : PlcWriteDefinition?
+    + Reply : PlcWriteDefinition?
+}
+
+class PlcPointAttributeScanner {
+    - {static} _cache : ConcurrentDictionary<Type, PlcObjectPlan>
+    + {static} Scan<T>() : PlcObjectPlan
+    + {static} Scan(type) : PlcObjectPlan
+}
+
+class PlcPointAccessor<T> {
+    - _getters : IReadOnlyDictionary<string, Func<T, object?>>
+    + Plan : PlcObjectPlan
+    + GetValue(obj, propertyName) : object?
+}
+
+class PlcHelper {
+    + {static} ReplyPending : int = 0
+    + {static} ReplyAck : int = 1
+    + {static} ReplyNak : int = 2
+    + {static} IsOn(text) : bool
+    + {static} ParseReply(text) : int
+    + {static} ReadCachedValue(cached, deviceCode, address) : string?
+}
+
+interface IPlcObjectService {
+    + WriteAsync<T>(settingId, obj) : Task<PlcWriteResult>
+    + Read<T>(settingId) : IReadOnlyDictionary<string, string>
+    + IsConnected(settingId) : bool
+    + IsWriteSuccess<T>(settingId) : bool
+}
+
+class PlcObjectService {
+    - _plcService : IPlcCommunicationService
+    - _accessors : ConcurrentDictionary<Type, object>
+    - WritePointAsync(settingId, def, value)
+    - WaitForReplyAsync(settingId, reply)
+    - GetAccessor<T>() : PlcPointAccessor<T>
+}
+
+class PlcWriteResult {
+    + Success : bool
+    + Message : string
+}
+
+interface IPlcCommunicationService {
+    + ConnectAsync(setting) : Task<bool>
+    + ReadAllPointsAsync(settingId) : Task<List<PointValueVO>>
+    + WriteSinglePointAsync(settingId, deviceCode, plcAddress, value) : Task<bool>
+    + GetCachedPoints() : List<PointValueVO>
+    + GetConnectedSettingIds() : List<long>
+    + Disconnect(settingId)
+    + IsConnected(settingId) : bool
+    + {abstract} LastError : string?
+}
+
+class PlcCommunicationService {
+    - _connections : ConcurrentDictionary<long, McpX>
+    - _cache : ConcurrentDictionary<long, List<PointValueVO>>
+    -- 真实引擎：McpX / 三菱Q MC协议 --
+    - WriteWordAsync(plc, prefix, address, value)
+    - ReadSinglePointAsync(plc, point)
+}
+
+class MockPlcCommunicationService {
+    - _recipeWriteValues : ConcurrentDictionary
+    -- Debug 用：随机模拟 + 配方注入 + 三态握手 --
+    - SimulateRecipeWriteAsync(settingId)
+}
+
+class PointValueVO {
+    + SettingId : long
+    + DeviceCode : string?
+    + PlcAddress : string?
+    + Quantity : int
+    + Values : ObservableCollection<PointSubValueVO>
+}
+
+class PointSubValueVO {
+    + DeviceCode : string?
+    + PlcAddress : string?
+    + Value : string
+}
+
+class Recipe {
+    + UpperLamiTmp_Stage1 : int
+    + LowerLamiTmp_Stage1 : int
+    + ... 共16个业务字段 ...
+    + WriteTrigger : bool  (M2804, Trigger)
+    + WriteReply : int  (M2101, Reply)
+}
+
+PlcReadAttribute --> PlcDevice
+PlcWriteAttribute --> PlcDevice
+PlcWriteAttribute --> PlcWriteRole
+PlcReadDefinition --> PlcDevice
+PlcWriteDefinition --> PlcDevice
+PlcWriteDefinition --> PlcWriteRole
+PlcObjectPlan *-- PlcReadDefinition
+PlcObjectPlan *-- PlcWriteDefinition
+PlcPointAttributeScanner --> PlcObjectPlan
+PlcPointAccessor --> PlcObjectPlan
+PlcObjectService ..|> IPlcObjectService
+PlcObjectService --> PlcPointAccessor : 使用
+PlcObjectService --> PlcHelper : 使用
+PlcObjectService --> PlcWriteResult : 返回
+PlcObjectService --> IPlcCommunicationService : 依赖
+PlcCommunicationService ..|> IPlcCommunicationService
+MockPlcCommunicationService ..|> IPlcCommunicationService
+PlcCommunicationService --> PointValueVO
+PointValueVO *-- PointSubValueVO
+Recipe ..> PlcReadAttribute : 挂载注解
+Recipe ..> PlcWriteAttribute : 挂载注解
+
+@enduml

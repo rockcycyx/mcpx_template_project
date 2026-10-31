@@ -1,0 +1,1 @@
+INSERT INTO secs_ceid (id, instance_id, ceid, name, status, create_by, create_time, update_by, update_time, remark) VALUES (1, 1, 10000, 'Test', '0', 'admin', '2026-10-23 16:39:13.6516528', 'admin', '2026-10-31 08:20:46.3726181', null);

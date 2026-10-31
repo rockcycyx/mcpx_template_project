@@ -1,0 +1,1 @@
+INSERT INTO secs_report (id, instance_id, report_id, name, status, create_by, create_time, update_by, update_time, remark) VALUES (1, 1, 10000, 'Test', '0', 'admin', '2026-10-23 16:38:44.0926987', 'admin', '2026-10-29 21:28:45.9909423', null);

@@ -1,0 +1,147 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\images\logo.ico</ApplicationIcon>
+	  <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.Extensions.Configuration.Binder.SourceGeneration</InterceptorsNamespaces>
+	  <!-- 屏蔽过时API、依赖版本冲突警告，发布时不会被当成错误阻断打包 -->
+	  <NoWarn>$(NoWarn);SYSLIB0011;NU1605</NoWarn>
+	  <AcceptNPOIOSMFLicense>true</AcceptNPOIOSMFLicense>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\images\3bbf9cd64add0f8b2463d5edbaa0c42f.jpg" />
+    <None Remove="Assets\images\briefcase-16-icon.png" />
+    <None Remove="Assets\images\Dtafalonso-Modern-Xp-ModernXP-31-Filetype-Word.512.png" />
+    <None Remove="Assets\images\loading.gif" />
+    <None Remove="Assets\images\Login.png" />
+    <None Remove="Assets\images\mark-github-16-icon.png" />
+    <None Remove="Assets\images\Modbus.png" />
+    <None Remove="Assets\images\pdf.jpeg" />
+    <None Remove="Assets\images\person-16-icon.png" />
+    <None Remove="Assets\images\profile.png" />
+    <None Remove="resouces\FodyWeavers.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\images\loading.gif" />
+    <Resource Include="Assets\images\Login.png" />
+    <Resource Include="Assets\images\Copilot_sprite.png" />
+    <Resource Include="Assets\images\3bbf9cd64add0f8b2463d5edbaa0c42f.jpg" />
+    <Resource Include="Assets\images\Dtafalonso-Modern-Xp-ModernXP-31-Filetype-Word.512.png" />
+    <Resource Include="Assets\images\logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--<PackageReference Include="AspectInjector" Version="2.9.0" />-->
+    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="DocX" Version="5.2.0" />
+    <PackageReference Include="EPPlus" Version="8.6.3" />
+    <PackageReference Include="Fody" Version="6.9.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.5" />
+    <PackageReference Include="McpX" Version="0.9.1" />
+    <PackageReference Include="MethodBoundaryAspect.Fody" Version="2.0.150" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NPOI" Version="2.8.0" />
+    <PackageReference Include="OpenTK.GLWpfControl" Version="4.3.6" />
+    <PackageReference Include="Secs4Net" Version="3.1.0" />
+    <PackageReference Include="Secs4Net.Sml" Version="3.1.0" />
+    <PackageReference Include="Serilog" Version="4.4.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.4" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="iNKORE.UI.WPF.Modern" Version="0.10.2.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\images\briefcase-16-icon.png" />
+    <Resource Include="Assets\images\mark-github-16-icon.png" />
+    <Resource Include="Assets\images\Modbus.png" />
+    <Resource Include="Assets\images\modbus_logo.png" />
+    <Resource Include="Assets\images\pdf.jpeg" />
+    <Resource Include="Assets\images\person-16-icon.png" />
+    <Resource Include="Assets\images\profile.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="XamlAnimatedGif">
+      <HintPath>Libs\XamlAnimatedGif.dll</HintPath>
+      <IsPrivate>true</IsPrivate>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="resouces\Sql\" />
+    <Folder Include="Views\Pages\Admin\OperLog\" />
+    <Folder Include="Views\Pages\Business\Dashboard\" />
+  </ItemGroup>
+
+    <ItemGroup>
+	    <Content Include="resouces\appsettings.json">
+		    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    </Content>
+	    <Content Include="resouces\FodyWeavers.xml">
+	      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+	    <None Include="resouces\Sql\**\*.sql">
+		    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	    </None>
+    </ItemGroup>
+
+    <ItemGroup>
+	    <None Include="resouces\csunresource\order\**\*">
+		    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		    <LinkBase>resouces\csunresource\order\</LinkBase>
+	    </None>
+    </ItemGroup>
+
+    <ItemGroup>
+	    <None Include="resouces\csunresource\estimation\**\*">
+		    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		    <LinkBase>resouces\csunresource\estimation\</LinkBase>
+	    </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Controller\Secs\**" />
+      <EmbeddedResource Remove="Controller\Secs\**" />
+      <None Remove="Controller\Secs\**" />
+      <Page Remove="Controller\Secs\**" />
+    </ItemGroup>
+
+    <!-- 列印脚本：拷贝到输出目录根（EstimationPrintHelper 按 BaseDirectory\PrintFiles.vbs 定位） -->
+    <ItemGroup>
+	    <None Include="resouces\csunresource\estimation\PrintFiles.vbs">
+		    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	    </None>
+    </ItemGroup>
+
+</Project>

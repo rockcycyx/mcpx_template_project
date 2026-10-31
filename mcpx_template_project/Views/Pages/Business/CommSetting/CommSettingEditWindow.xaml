@@ -1,0 +1,101 @@
+<Window x:Class="mcpx_template_project.Views.Pages.Business.CommSettingEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:mcpx_template_project.Views.Pages.Business"
+        mc:Ignorable="d"
+        Title="通讯设定"
+        Height="400" Width="630"
+        MinHeight="360" MinWidth="560"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        Background="{DynamicResource App.PageBackground}"
+        FontSize="13"
+        Loaded="Window_Loaded">
+    <Grid >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <!-- ===================== 基本信息 移除灰色卡片背景，使用细边框分隔 ===================== -->
+        <Border Grid.Row="0" Padding="20,18"
+                Background="Transparent" 
+                BorderBrush="{DynamicResource App.Divider}"
+                BorderThickness="1"
+                CornerRadius="8">
+            <StackPanel>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="170"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="170"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <!-- 名称 | IP 地址 -->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="名称" VerticalAlignment="Center" Margin="0,0,10,16"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" Margin="0,0,0,16"
+                             Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                             MaxLength="100" ToolTip="请输入通讯设定名称"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="IP 地址" VerticalAlignment="Center" Margin="26,0,10,16"/>
+                    <TextBox Grid.Row="0" Grid.Column="3" Margin="0,0,0,16"
+                             Text="{Binding Ip, UpdateSourceTrigger=PropertyChanged}"
+                             MaxLength="64" ToolTip="请输入 IP 地址"/>
+
+                    <!-- 端口 | 启动连线模式 -->
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="端口" VerticalAlignment="Center" Margin="0,0,10,16"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,16"
+                             Text="{Binding Port, Converter={StaticResource IntConverter}}"
+                             ToolTip="1 ~ 65535"/>
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="启动连线模式" VerticalAlignment="Center" Margin="26,0,10,16"/>
+                    <ComboBox Grid.Row="1" Grid.Column="3" Margin="0,0,0,16"
+                              SelectedValuePath="Tag" SelectedValue="{Binding ConnectMode}">
+                        <ComboBoxItem Content="手动" Tag="manual"/>
+                        <ComboBoxItem Content="自动" Tag="auto"/>
+                    </ComboBox>
+
+                    <!-- 通讯检查周期 | TimeOut -->
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="通讯检查周期(ms)" VerticalAlignment="Center" Margin="0,0,10,16"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Margin="0,0,0,16"
+                             Text="{Binding CheckCycleMs, Converter={StaticResource IntConverter}}"
+                             ToolTip="通讯检查周期，单位毫秒"/>
+                    <TextBlock Grid.Row="2" Grid.Column="2" Text="TimeOut(ms)" VerticalAlignment="Center" Margin="26,0,10,16"/>
+                    <TextBox Grid.Row="2" Grid.Column="3" Margin="0,0,0,16"
+                             Text="{Binding TimeoutMs, Converter={StaticResource IntConverter}}"
+                             ToolTip="超时时间，单位毫秒"/>
+
+                    <!-- 断线重试周期 -->
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="断线重试周期(s)" VerticalAlignment="Center" Margin="0,0,10,16"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" Margin="0,0,0,16"
+                             Text="{Binding RetryCycleS, Converter={StaticResource IntConverter}}"
+                             ToolTip="断线重试周期，单位秒"/>
+
+                    <!-- 备注 -->
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="备注" VerticalAlignment="Top" Margin="0,4,10,0"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3"
+                             Text="{Binding Remark, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True" Height="52" VerticalContentAlignment="Top"
+                             MaxLength="500" ToolTip="请输入备注"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- ===================== 底部操作栏 ===================== -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource App.Danger}"
+                       VerticalAlignment="Center" Margin="0,0,14,0"/>
+            <Button Content="确定" Width="88" Margin="0,0,10,0"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Click="ConfirmBtn_Click"/>
+            <Button Content="取消" Width="88" Click="CancelBtn_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

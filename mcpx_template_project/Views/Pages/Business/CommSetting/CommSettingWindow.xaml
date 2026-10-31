@@ -1,0 +1,319 @@
+<Window x:Class="mcpx_template_project.Views.Pages.Business.CommSettingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:mcpx_template_project.Views.Pages.Business"
+        mc:Ignorable="d"
+        Title="通讯设定"
+        Height="720" Width="980"
+        MinHeight="520" MinWidth="760"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource App.PageBackground}"
+        FontSize="13">
+    <Window.Resources>
+        <!-- 区域明细单元格内联编辑框样式 -->
+        <Style x:Key="CellTextBox" TargetType="TextBox">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource App.Accent}"/>
+                    <Setter Property="Background" Value="{DynamicResource App.CardBackground}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 区域明细单元格内联下拉框样式（BasedOn 继承 Fluent 默认主题，避免丢失下拉外观） -->
+        <Style x:Key="CellComboBox" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" MinHeight="140"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" MinHeight="180"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部工具栏卡片 -->
+        <Border Grid.Row="0" Margin="0,0,0,10" Padding="14,12"
+                Background="{DynamicResource App.CardBackground}" CornerRadius="8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="名称 / IP" VerticalAlignment="Center" Margin="0,0,8,0"
+                               Foreground="{DynamicResource App.TextSecondary}"/>
+                    <TextBox Width="220" VerticalContentAlignment="Center"
+                             Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="输入后点击搜索"/>
+                    <Button Content="搜索" Width="72" Margin="8,0,0,0"
+                            Command="{Binding LoadCommand}"/>
+                    <Button Content="刷新" Width="72" Margin="8,0,0,0"
+                            Command="{Binding LoadCommand}"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" Content="新增通讯设定" HorizontalAlignment="Right"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{Binding AddSettingCommand}"/>
+            </Grid>
+        </Border>
+
+        <!-- 通讯设定列表 -->
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Settings}"
+                  SelectedItem="{Binding SelectedSetting}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  CanUserReorderColumns="False"
+                  GridLinesVisibility="Horizontal"
+                  HeadersVisibility="Column"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
+                  RowHeaderWidth="0"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  ColumnHeaderStyle="{StaticResource FluentDataGridColumnHeader}"
+                  RowStyle="{StaticResource FluentDataGridRow}"
+                  CellStyle="{StaticResource FluentDataGridCell}">
+            <DataGrid.Columns>
+
+                <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="*" MinWidth="150" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Header="IP 地址" Binding="{Binding Ip}" Width="*" MinWidth="120" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Header="端口" Binding="{Binding Port}" Width="80" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridCenterText}"/>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <DataGridTemplateColumn Header="连接状态" Width="110" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Ellipse Width="9" Height="9" Margin="0,0,7,0">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="{DynamicResource App.TextTertiary}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Status}" Value="1">
+                                                    <Setter Property="Fill" Value="{DynamicResource App.Success}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+                                <TextBlock VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="已停止"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource App.TextSecondary}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Status}" Value="1">
+                                                    <Setter Property="Text" Value="已连接"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource App.Success}"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="连线" Width="110" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Width="88" Height="30" Padding="0"
+                                    Command="{Binding DataContext.ToggleRunCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                        <Setter Property="Content" Value="启动连线"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Status}" Value="1">
+                                                <Setter Property="Content" Value="停止连线"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="操作" Width="135" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Button Content="编辑" Width="60" Margin="0,0,6,0"
+                                        Command="{Binding DataContext.EditSettingCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding}"/>
+                                <Button Content="删除" Width="60"
+                                        Command="{Binding DataContext.DeleteSettingCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- 分隔条 -->
+        <GridSplitter Grid.Row="2" Height="8" HorizontalAlignment="Stretch" Background="Transparent"
+                      ResizeBehavior="PreviousAndNext" ResizeDirection="Rows" Cursor="SizeNS"/>
+
+        <!-- 选中项的区域配置明细（单身）内联编辑 -->
+        <Border Grid.Row="3" Margin="0,8,0,0" Padding="16,14"
+                Background="{DynamicResource App.CardBackground}" CornerRadius="8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- 面板标题 + 保存 -->
+                <Grid Grid.Row="0" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="区域配置" FontWeight="SemiBold" FontSize="14"
+                                   Foreground="{DynamicResource App.TextSecondary}"/>
+                        <TextBlock Text="{Binding SelectedSetting.Name, StringFormat=：{0}}"
+                                   FontSize="13" Margin="8,1,0,0" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource App.TextSecondary}"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="保存区域" Width="110"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Command="{Binding SaveAreasCommand}"/>
+                </Grid>
+
+                <TabControl Grid.Row="1" ItemsSource="{Binding AreaTabs}"
+                            Background="Transparent" BorderThickness="0" Padding="0">
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Title}" FontSize="13" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,12,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
+                                    <Button Content="添加区域" Width="120"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            Command="{Binding DataContext.AddAreaCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}"/>
+                                </StackPanel>
+
+                                <DataGrid Grid.Row="1"
+                                          ItemsSource="{Binding Areas}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          CanUserResizeColumns="True"
+                                          CanUserReorderColumns="False"
+                                          GridLinesVisibility="Horizontal"
+                                          HeadersVisibility="Column"
+                                          SelectionMode="Single"
+                                          SelectionUnit="FullRow"
+                                          RowHeaderWidth="0"
+                                          RowHeight="38"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          ColumnHeaderStyle="{StaticResource FluentDataGridColumnHeader}"
+                                          RowStyle="{StaticResource FluentDataGridRow}"
+                                          CellStyle="{StaticResource FluentDataGridCell}">
+                                    <DataGrid.Columns>
+
+                                        <DataGridTemplateColumn Header="设备代号" Width="110" IsReadOnly="True">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Grid HorizontalAlignment="Stretch">
+                                                        <ComboBox Style="{StaticResource CellComboBox}"
+                                                                  HorizontalAlignment="Center" Width="90"
+                                                                  ItemsSource="{Binding DataContext.PrefixOptions, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                  SelectedItem="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="位置" Width="*" MinWidth="140" IsReadOnly="True">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBox Style="{StaticResource CellTextBox}"
+                                                             Text="{Binding Position, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="数量" Width="90" IsReadOnly="True">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBox Style="{StaticResource CellTextBox}" TextAlignment="Center"
+                                                             Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntConverter}}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="操作" Width="70" IsReadOnly="True">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="删除" Width="50" Height="26" Padding="0"
+                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                            Command="{Binding DataContext.RemoveAreaCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
+            </Grid>
+        </Border>
+
+        <!-- 底部统计 -->
+        <TextBlock Grid.Row="4" Margin="2,6,0,0" FontSize="12"
+                   Foreground="{DynamicResource App.TextSecondary}"
+                   Text="{Binding Summary}"/>
+    </Grid>
+</Window>
