@@ -1,0 +1,10 @@
+# WorkBuddy 项目数据目录（AI 助手工作区记忆/技能等，不应提交到版本库）
+.workbuddy/
+
+# 构建产物
+bin/
+obj/
+
+# Visual Studio 用户配置
+*.user
+.vs/

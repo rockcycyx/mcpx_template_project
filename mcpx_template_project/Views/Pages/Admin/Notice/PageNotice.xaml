@@ -62,7 +62,8 @@
                         AddCommand="{Binding AddNoticeCommand}"
                         DeleteCommand="{Binding BatchDeleteCommand}"
                         ImportCommand="{Binding ImportCommand}"
-                        ExportCommand="{Binding ExportCommand}"/>
+                        ExportCommand="{Binding ExportCommand}"
+                                    />
                 </Grid>
             </Border>
 
