@@ -280,6 +280,18 @@ namespace mcpx_template_project.ViewModels.Admin.User
             }
         }
 
+        [RelayCommand]
+        private void Import()
+        {
+            DialogService.ShowInfo("导入（功能待实现）");
+        }
+
+        [RelayCommand]
+        private void Export()
+        {
+            DialogService.ShowInfo("导出（功能待实现）");
+        }
+
         /// <summary>
         /// 全选/取消全选
         /// </summary>
