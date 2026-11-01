@@ -173,7 +173,7 @@ public async Task<ApiResult<SysUser>> LoginAsync(string userName, string passwor
 
 项目支持读写多PLC设备实例：配置PLC通讯信息，并配置读写区域。架构设计请参考[plc-framework.md](./docs/plc-framework.md)
 
-![](docs/imgs/.png)
+![](docs/imgs/comm_setting1.png)
 
 > 启动连线模式：自动 - 在用户登录后自动建立连接。
 >
