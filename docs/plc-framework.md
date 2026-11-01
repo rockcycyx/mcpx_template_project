@@ -336,21 +336,9 @@ services.AddSingleton<IRecipeService, RecipeServiceImpl>();     // 配方 CRUD
 
 ---
 
-## 11. 待确认事项
+## 11. UML 图
 
-> ⚠️ **回复位三态与位设备的冲突**：回复位需要表达三态（0/1/2，NAK=2），但当前 `WriteReply` 地址是 **M2101（M 是位设备，只能存 0/1，存不了 2）**。
->
-> 需确认以下二选一：
-> 1. 回复位改用**字设备**（如 D 寄存器），可完整表达 0/1/2；
-> 2. 若确认 PLC 侧 NAK 不会出现（只有 ACK/无回应），则 M2101 位设备足够。
->
-> 修改点仅 `Recipe.WriteReply` 的 `[PlcWrite]` 注解一处。
-
----
-
-## 12. UML 图
-
-### 12.1 类图
+### 11.1 类图
 
 ```mermaid
 classDiagram
@@ -486,7 +474,7 @@ classDiagram
     Recipe ..> PlcWriteAttribute
 ```
 
-### 12.2 写入时序图
+### 11.2 写入时序图
 
 ```mermaid
 sequenceDiagram
@@ -527,7 +515,7 @@ sequenceDiagram
     end
 ```
 
-### 12.3 分层部署图
+### 11.3 分层部署图
 
 ```mermaid
 flowchart TB
@@ -578,7 +566,7 @@ flowchart TB
 
 ---
 
-## 13. 关键设计原则小结
+## 12. 关键设计原则小结
 
 1. **注解驱动，零样板**：开发者只需在实体上打注解，读写全部走通用门面。
 2. **读写分离**：`[PlcRead]` 与 `[PlcWrite]` 各司其职，语义清晰，避免一个注解混杂两种语义。
