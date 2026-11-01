@@ -87,13 +87,13 @@
 
 ##### 3.1.1 登录页（账号：admin 密码:1）
 
-![Login](D:\code\C#\mcpx_template_project\docs\imgs\Login.png)
+![Login](docs/imgs/Login.png)
 
 ##### 3.1.2 系统管理
 
 此部分在应用层面大量参考[若依](https://doc.ruoyi.vip/ruoyi/)不过多赘述，因本项目为单机桌面应用未完全实现（如Security部分）。菜单管理输入完整限定名，直接加载组件，不再做拼接。icon请参考[iNKORE官网](https://www.inkore.net/)，或在微软商店下载iNKORE.UI.WPF.Modern Gallery即可，版本可使用的icon需要查看`mcpx_template_project.Tools.SegoeFluentIconsDump`
 
-![](D:\code\C#\mcpx_template_project\docs\imgs\menu.png)
+![](docs/imgs/menu.png)
 
 ##### 3.1.2 日志管理
 
@@ -130,7 +130,7 @@ public async Task<ApiResult<SysUser>> LoginAsync(string userName, string passwor
 }
 ```
 
-![LogAOP](D:\code\C#\mcpx_template_project\docs\imgs\LogAOP.png)
+![LogAOP](docs/imgs/LogAOP.png)
 
 ### 3.2 业务功能（Business）
 
@@ -171,19 +171,19 @@ public async Task<ApiResult<SysUser>> LoginAsync(string userName, string passwor
 
 ##### PLC通讯设定模块
 
-项目支持读写多PLC设备实例：配置PLC通讯信息，并配置读写区域。架构设计请参考[plc-framework.md](./plc-framework.md)
+项目支持读写多PLC设备实例：配置PLC通讯信息，并配置读写区域。架构设计请参考[plc-framework.md](./docs/plc-framework.md)
 
-![](D:\code\C#\mcpx_template_project\docs\imgs\comm_setting1.png)
+![](docs/imgs/.png)
 
 > 启动连线模式：自动 - 在用户登录后自动建立连接。
 >
 > AI/AO/DI/DO：在本项目中未实际作用，设计之初考虑到不同品牌、不同型号PLC设备代号不同而引入作为中间层解耦，使开发者无需关注各PLC设备代号定义，目前仅支持三菱PLC Q系列，故仅作为概念存在。
 
-![](D:\code\C#\mcpx_template_project\docs\imgs\comm_setting2.png)
+![](docs/imgs/comm_setting2.png)
 
 ##### 实时监控模块：辅助开发者监控/写PLC调试
 
-![](D:\code\C#\mcpx_template_project\docs\imgs\monitor.png)
+![](docs/imgs/monitor.png)
 
 ##### 触发器
 
@@ -221,13 +221,13 @@ public async Task<ApiResult<SysUser>> LoginAsync(string userName, string passwor
 
 2. 启动项目即可配置事件处理方法
 
-![](D:\code\C#\mcpx_template_project\docs\imgs\trigger.png)
+![](docs/imgs/trigger.png)
 
-> 该模块架构设计请移步[plc-trigger-alarm-event](./plc-trigger-alarm-event.md)
+> 该模块架构设计请移步[plc-trigger-alarm-event](./docs/plc-trigger-alarm-event.md)
 
 ##### 面向对象式读写PLC（项目核心设计）
 
-详细请参阅[plc-framework](./plc-framework.md)
+详细请参阅[plc-framework](./docs/plc-framework.md)
 
 #### 3.3.2 SECS/GEM通讯模块功能
 
@@ -235,7 +235,7 @@ public async Task<ApiResult<SysUser>> LoginAsync(string userName, string passwor
 
 ##### 通讯设定
 
-![](D:\code\C#\mcpx_template_project\docs\imgs\SECSconfig.png)
+![](docs/imgs/SECSconfig.png)
 
 ##### SxFy配置
 
@@ -266,7 +266,7 @@ public async Task<SecsMessage?> S1F3(SecsMessage primaryMsg, CancellationToken c
 }
 ```
 
-![](D:\code\C#\mcpx_template_project\docs\imgs\SxFy.png)
+![](docs/imgs/SxFy.png)
 
 ------
 
