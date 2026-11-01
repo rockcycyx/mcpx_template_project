@@ -5,6 +5,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:local="clr-namespace:mcpx_template_project.Views.Pages.Admin.Menu"
       xmlns:vm="clr-namespace:mcpx_template_project.ViewModels.Admin.Menu"
+      xmlns:conv="clr-namespace:mcpx_template_project.Converters"
       xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
       mc:Ignorable="d"
       Height="550" Width="680"
@@ -17,7 +18,7 @@
                 <Setter.Value>
                     <Binding Path="IsEditMode">
                         <Binding.Converter>
-                            <local:BoolToTitleConverter/>
+                            <conv:BoolToTitleConverter/>
                         </Binding.Converter>
                     </Binding>
                 </Setter.Value>
@@ -32,7 +33,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>

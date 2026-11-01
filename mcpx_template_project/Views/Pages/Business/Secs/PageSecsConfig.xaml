@@ -668,7 +668,7 @@
                                           SelectedValue="{Binding SxFyTab.FilterOnlineRemote}"
                                           SelectedValuePath="Value" DisplayMemberPath="Label"/>
 
-                                <Button Grid.Column="8" Content="查询" Width="70" Margin="0,0,8,0"
+                                <Button Grid.Column="8" Content="查询" Width="80" Margin="0,0,8,0"
                                         Style="{StaticResource AccentButtonStyle}"
                                         Command="{Binding SxFyTab.SearchCommand}"/>
                                 <Button Grid.Column="9" Content="重置" Width="70"
@@ -679,7 +679,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="SxFy 消息权限（各控制状态是否允许执行；勾选可直接修改）"
+                                <TextBlock Grid.Column="0" Text="SxFy 消息权限"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource App.TextSecondary}"/>
                                 <Button Grid.Column="1" Content="新增 SxFy" Width="120"
@@ -721,6 +721,7 @@
                                     <DataTemplate>
                                         <Grid>
                                             <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                      MinWidth="0"
                                                       IsChecked="{Binding AllowOffline, UpdateSourceTrigger=PropertyChanged}"
                                                       Command="{Binding DataContext.SxFyTab.SavePermissionsCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                       CommandParameter="{Binding}"/>
@@ -733,6 +734,7 @@
                                     <DataTemplate>
                                         <Grid>
                                             <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                      MinWidth="0"
                                                       IsChecked="{Binding AllowOnlineLocal, UpdateSourceTrigger=PropertyChanged}"
                                                       Command="{Binding DataContext.SxFyTab.SavePermissionsCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                       CommandParameter="{Binding}"/>
@@ -745,6 +747,7 @@
                                     <DataTemplate>
                                         <Grid>
                                             <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                      MinWidth="0"
                                                       IsChecked="{Binding AllowOnlineRemote, UpdateSourceTrigger=PropertyChanged}"
                                                       Command="{Binding DataContext.SxFyTab.SavePermissionsCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                       CommandParameter="{Binding}"/>

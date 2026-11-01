@@ -71,10 +71,14 @@
                 BorderBrush="{DynamicResource App.Divider}" BorderThickness="1" CornerRadius="6">
             <StackPanel>
                 <TextBlock Text="允许执行的控制状态" FontWeight="SemiBold"
-                           Foreground="{DynamicResource App.TextSecondary}" Margin="0,0,0,12"/>
-                <CheckBox Content="OffLine（设备离线）" IsChecked="{Binding AllowOffline}" Margin="0,0,0,10"/>
-                <CheckBox Content="OnLine Local（在线-本地）" IsChecked="{Binding AllowOnlineLocal}" Margin="0,0,0,10"/>
-                <CheckBox Content="OnLine Remote（在线-远程）" IsChecked="{Binding AllowOnlineRemote}"/>
+                           Foreground="{DynamicResource App.TextSecondary}" Margin="0,0,0,12"
+                           HorizontalAlignment="Center"/>
+                <CheckBox Content="OffLine（设备离线）" IsChecked="{Binding AllowOffline}" Margin="0,0,0,10"
+                          HorizontalAlignment="Center"/>
+                <CheckBox Content="OnLine Local（在线-本地）" IsChecked="{Binding AllowOnlineLocal}" Margin="0,0,0,10"
+                          HorizontalAlignment="Center"/>
+                <CheckBox Content="OnLine Remote（在线-远程）" IsChecked="{Binding AllowOnlineRemote}"
+                          HorizontalAlignment="Center"/>
             </StackPanel>
         </Border>
 

@@ -253,6 +253,9 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+
+
                                     </Grid.RowDefinitions>
 
                                     <!-- Row0: 上级菜单 / 显示排序 -->

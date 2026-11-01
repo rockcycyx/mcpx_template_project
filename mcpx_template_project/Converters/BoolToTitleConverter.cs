@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace mcpx_template_project.Views.Pages.Admin.Menu
+namespace mcpx_template_project.Converters
 {
     public class BoolToTitleConverter : IValueConverter
     {

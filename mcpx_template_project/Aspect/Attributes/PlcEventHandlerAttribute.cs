@@ -6,6 +6,7 @@ namespace mcpx_template_project.Service.Business.Trigger
     /// PLC 事件处理器特性：标注在 <see cref="IPlcEventHandler"/> 实现类上，
     /// 声明该处理器的唯一 Key 与展示名（供配点界面下拉框展示，避免手输错误）。
     /// </summary>
+    /// <author>Rudeus</author>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public sealed class PlcEventHandlerAttribute : Attribute
     {

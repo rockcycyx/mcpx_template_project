@@ -8,6 +8,7 @@ namespace mcpx_template_project.Core.Handler
     /// 启动时由注册表扫描 DI 容器中所有实现了本接口的类型并登记。
     /// 事件触发时，根据触发器表里配置的 action_key 反射调用对应的 HandleAsync。
     /// </summary>
+    /// <author>Rudeus</author>
     public interface IPlcEventHandler
     {
         /// <summary>

@@ -54,7 +54,6 @@ namespace mcpx_template_project.ViewModels.Admin
             _dialogService = dialogService;
         }
 
-        // [Log(Title = "用户登录", BusinessType = BusinessType.Grant)]
         [RelayCommand(CanExecute = nameof(CanLogin))]
         public async Task LoginAsync()
         {

@@ -1,11 +1,13 @@
-using Microsoft.EntityFrameworkCore;
+using mcpx_template_project.Aspect.Attributes;
 using mcpx_template_project.Configation;
 using mcpx_template_project.Domain.Common;
-using Bcrypt = BCrypt.Net.BCrypt;
 using mcpx_template_project.Domain.Entities.System;
+using mcpx_template_project.Domain.Enums;
 using mcpx_template_project.Domain.Model;
 using mcpx_template_project.Domain.VO;
 using mcpx_template_project.Helper;
+using Microsoft.EntityFrameworkCore;
+using Bcrypt = BCrypt.Net.BCrypt;
 
 namespace mcpx_template_project.Service.Admin.impl
 {
@@ -18,6 +20,7 @@ namespace mcpx_template_project.Service.Admin.impl
             _contextFactory = contextFactory;
         }
 
+        [Log(Title = "用户登录", BusinessType = BusinessType.Grant)]
         public async Task<ApiResult<SysUser>> LoginAsync(string userName, string password)
         {
             using var db = await _contextFactory.CreateDbContextAsync();

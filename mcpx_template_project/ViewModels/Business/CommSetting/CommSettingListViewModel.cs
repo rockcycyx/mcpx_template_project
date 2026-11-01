@@ -96,7 +96,7 @@ namespace mcpx_template_project.ViewModels.Business
                 Settings.Clear();
                 foreach (var item in list)
                 {
-                    // 连线状态为纯内存态：从通讯引擎实时回填，不依赖数据库 Status 字段
+                    // 连线状态为纯内存态：从通讯引擎实时回填
                     item.Status = _plcService.IsConnected(item.Id) ? "1" : "0";
                     Settings.Add(item);
                 }
